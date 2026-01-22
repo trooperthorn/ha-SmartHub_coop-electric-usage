@@ -21,7 +21,7 @@ To install this integration via HACS (Home Assistant Community Store), follow th
 
 1. Open **Home Assistant** and go to **HACS** > **Integrations**.
 2. Click on the three-dot menu in the upper-right corner and select **Custom Repositories**.
-3. In the repository URL field, add the following: https://github.com/smue86/ha-electric-usage-downloader
+3. In the repository URL field, add the following: [https://github.com/smue86/ha-electric-usage-downloader](https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage)
 4. Set the **Category** to **Integration** and click **Add**.
 5. After adding the repository, search for `HA Electric Usage Downloader` in the HACS Integrations tab.
 6. Click **Install**.
@@ -31,7 +31,7 @@ To install this integration via HACS (Home Assistant Community Store), follow th
 
 If you prefer to install the integration manually:
 
-1. Download the latest version of the integration from the GitHub repository: https://github.com/smue86/ha-electric-usage-downloader
+1. Download the latest version of the integration from the GitHub repository: [https://github.com/smue86/ha-electric-usage-downloader](https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage)
 2. Copy the `ha_electric_usage_downloader` folder from `custom_components/` into your Home Assistant `custom_components/` directory.
 3. Restart Home Assistant.
 
@@ -45,9 +45,9 @@ After installation, you can configure the integration through the Home Assistant
 2. Search for `HA Electric Usage Downloader` and select it.
 3. Enter your **username** and **password** for the PEC SmartHub portal.
 4. Input the **login URL** and **usage URL** for your SmartHub provider.
-- Default PEC URLs:
-  - Login URL: `https://pec.smarthub.coop/Login.html`
-  - Usage URL: `https://pec.smarthub.coop/Usage/Usage.htm`
+- Default bluebonnet URLs: (Change config_flow.py URL for COOP that leads to SmartHub)
+  - Login URL: `https://bluebonnet.smarthub.coop/Login.html`
+  - Usage URL: `https://bluebonnet.smarthub.coop/Usage/Usage.htm`
 5. Complete the configuration, and a new sensor entity will be created with your electric usage data.
 
 ---
@@ -93,4 +93,4 @@ The integration fetches data every 15 minutes by default, but you can adjust thi
 
 ## Support
 
-For any issues or feature requests, please create an issue on the [GitHub repository](https://github.com/smue86/ha-electric-usage-downloader).
+For any issues or feature requests, please create an issue on the [GitHub repository](https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage).
