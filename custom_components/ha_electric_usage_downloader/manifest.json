@@ -2,10 +2,10 @@
   "domain": "ha_electric_usage_downloader",
   "name": "Electric Usage Downloader",
   "version": "1.0.0",
-  "documentation": "https://github.com/smue86/ha-electric-usage-downloader",
+  "documentation": "https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage",
   "requirements": ["beautifulsoup4==4.9.3", "aiohttp==3.7.4"],
   "dependencies": [],
-  "codeowners": ["@smue86"],
+  "codeowners": ["@trooperthorn"],
   "iot_class": "cloud_polling",
   "config_flow": true
 }
