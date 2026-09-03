@@ -9,7 +9,7 @@ The **HA Electric Usage Downloader** integration allows you to download and disp
 
 ## Requirements
 - BlueBonnet SmartHub account credentials (username and password).
-- Home Assistant (version 2023.1.0 or higher).
+- Home Assistant (version 2026.9.0 or higher).
 
 ---
 

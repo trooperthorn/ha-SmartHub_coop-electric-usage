@@ -1,0 +1,8 @@
+{
+  "tag_prefix": "v",
+  "timezone": "America/Chicago",
+  "release_paths": ["custom_components/ha_electric_usage_downloader"],
+  "version_fields": [
+    {"path": "custom_components/ha_electric_usage_downloader/manifest.json", "kind": "json", "key": "version"}
+  ]
+}

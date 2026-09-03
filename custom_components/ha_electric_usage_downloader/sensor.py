@@ -1,26 +1,25 @@
 import logging
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import ENERGY_KILO_WATT_HOUR
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.const import UnitOfEnergy
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import DOMAIN
+from . import ElectricUsageConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, config_entry: ElectricUsageConfigEntry, async_add_entities):
     """Set up the sensor platform from a config entry."""
-    try:
-        coordinator = hass.data[DOMAIN][config_entry.entry_id]
-        async_add_entities([ElectricUsageSensor(coordinator)])
-    except KeyError as e:
-        _LOGGER.error(f"Error setting up sensor entry: {e}")
+    coordinator = config_entry.runtime_data
+    async_add_entities([ElectricUsageSensor(coordinator)])
 
 class ElectricUsageSensor(CoordinatorEntity, SensorEntity):
     """Representation of an electric usage sensor."""
 
+    _attr_device_class = SensorDeviceClass.ENERGY
+
     def __init__(self, coordinator):
         super().__init__(coordinator)
         self._attr_name = "Electric Usage"
-        self._attr_unit_of_measurement = ENERGY_KILO_WATT_HOUR
+        self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
         self._attr_unique_id = "electric_usage"
 
     @property

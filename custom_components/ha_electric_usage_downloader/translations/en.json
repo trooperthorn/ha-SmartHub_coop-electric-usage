@@ -1,0 +1,18 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "username": "Username",
+                    "password": "Password",
+                    "login_url": "Login URL",
+                    "usage_url": "Usage URL"
+                }
+            }
+        },
+        "error": {
+            "missing_credentials": "Username and password are required.",
+            "unknown_error": "Unexpected error"
+        }
+    }
+}

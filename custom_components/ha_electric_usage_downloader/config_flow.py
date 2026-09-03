@@ -18,13 +18,11 @@ class ElectricUsageConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            # Ensure username and password are not empty
             try:
                 if not user_input.get("username") or not user_input.get("password"):
                     errors["base"] = "missing_credentials"
                     _LOGGER.error("Missing credentials.")
                 else:
-                    # If no errors, create the config entry
                     return self.async_create_entry(
                         title="Electric Usage Downloader", data=user_input
                     )

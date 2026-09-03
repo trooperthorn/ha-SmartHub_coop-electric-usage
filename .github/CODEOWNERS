@@ -1,0 +1,4 @@
+# Security-sensitive runtime and delivery surfaces require owner review.
+/custom_components/ha_electric_usage_downloader/ @trooperthorn
+/.github/workflows/ @trooperthorn
+/SECURITY.md @trooperthorn

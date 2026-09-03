@@ -1,4 +1,7 @@
 from datetime import timedelta
 
+from homeassistant.const import Platform
+
 DOMAIN = "ha_electric_usage_downloader"
-SCAN_INTERVAL = timedelta(minutes=15)  # Fetch data every 15 minutes
+PLATFORMS = [Platform.SENSOR]
+SCAN_INTERVAL = timedelta(minutes=15)

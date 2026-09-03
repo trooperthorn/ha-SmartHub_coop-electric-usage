@@ -1,5 +1,5 @@
 {
   "name": "HA SmartHub COOP Electric Usage",
   "render_readme": true,
-  "homeassistant": "2023.1.0"
+  "homeassistant": "2026.9.0"
 }

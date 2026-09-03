@@ -1,8 +1,18 @@
-import aiohttp
-from bs4 import BeautifulSoup
 import logging
 
+import aiohttp
+from bs4 import BeautifulSoup
+
 _LOGGER = logging.getLogger(__name__)
+
+
+class ElectricUsageAuthError(Exception):
+    """Raised when the SmartHub portal rejects the configured credentials."""
+
+
+class ElectricUsageConnectionError(Exception):
+    """Raised when the SmartHub portal cannot be reached or returns unparseable data."""
+
 
 class ElectricUsageAPI:
     """Handles communication with the PEC SmartHub portal."""
@@ -28,15 +38,11 @@ class ElectricUsageAPI:
         }
         try:
             async with self.session.post(self.login_url, data=payload, headers=headers) as response:
-                if response.status == 200:
-                    _LOGGER.debug("Successfully logged in to PEC SmartHub")
-                    self.cookies = response.cookies
-                else:
-                    _LOGGER.error(f"Failed to log in to PEC SmartHub: {response.status}")
-                    raise Exception("Login failed")
-        except Exception as e:
-            _LOGGER.error(f"Error during login: {e}")
-            raise
+                if response.status != 200:
+                    raise ElectricUsageAuthError(f"Login rejected with status {response.status}")
+                self.cookies = response.cookies
+        except aiohttp.ClientError as err:
+            raise ElectricUsageConnectionError(f"Error connecting to the SmartHub login page: {err}") from err
 
     async def get_usage_data(self):
         """Fetch electric usage data by scraping the PEC SmartHub portal."""
@@ -49,24 +55,21 @@ class ElectricUsageAPI:
         try:
             async with self.session.get(self.usage_url, cookies=self.cookies, headers=headers) as response:
                 if response.status != 200:
-                    _LOGGER.error(f"Failed to fetch usage data: {response.status}")
-                    return None
-
+                    raise ElectricUsageConnectionError(f"Failed to fetch usage data: status {response.status}")
                 html_content = await response.text()
-                soup = BeautifulSoup(html_content, "html.parser")
+        except aiohttp.ClientError as err:
+            raise ElectricUsageConnectionError(f"Error fetching usage data: {err}") from err
 
-                # Parse the usage data
-                usage_data = self._parse_usage_data(soup)
-                return usage_data
-        except Exception as e:
-            _LOGGER.error(f"Error fetching usage data: {e}")
-            return None
+        soup = BeautifulSoup(html_content, "html.parser")
+        return self._parse_usage_data(soup)
 
     def _parse_usage_data(self, soup):
         """Parse the electric usage data from the HTML soup."""
+        tag = soup.find("td", class_="highcharts-tooltip")
+        if tag is None:
+            raise ElectricUsageConnectionError("Usage page did not contain the expected usage element")
         try:
-            usage_value = soup.find("td", class_="highcharts-tooltip").get_text()
-            return {"usage": float(usage_value)}
-        except Exception as e:
-            _LOGGER.error(f"Error parsing usage data: {e}")
-            return None
+            usage_value = float(tag.get_text())
+        except ValueError as err:
+            raise ElectricUsageConnectionError(f"Could not parse usage value: {err}") from err
+        return {"usage": usage_value}
