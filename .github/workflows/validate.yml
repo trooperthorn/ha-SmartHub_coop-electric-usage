@@ -21,7 +21,7 @@ jobs:
         with:
           category: integration
           # brands: custom HACS install, not a home-assistant/brands submission. license: only readable on the default branch.
-          ignore: ${{ github.ref != 'refs/heads/main' && 'license,brands' || 'brands' }}
+          ignore: ${{ github.ref != 'refs/heads/main' && 'license brands' || 'brands' }}
 
   hassfest:
     name: hassfest (manifest sanity)
