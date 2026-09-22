@@ -12,5 +12,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage/issues",
   "requirements": [],
-  "version": "2026.09.22.1"
+  "version": "2026.09.22.2"
 }
