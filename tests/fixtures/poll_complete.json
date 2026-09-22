@@ -1,0 +1,29 @@
+{
+  "status": "COMPLETE",
+  "data": {
+    "ELECTRIC": [
+      {
+        "serviceLocationNumber": "900001",
+        "accountNumber": "1000001",
+        "timeFrame": "HOURLY",
+        "industry": "ELECTRIC",
+        "unitOfMeasure": "KWH",
+        "hasHourly": true,
+        "type": "USAGE",
+        "series": [
+          {"type": "column", "name": "00000001 - Consumption", "isNet": false, "channel": 1,
+           "data": [{"x": 1789822800000, "y": 0.13}, {"x": 1789826400000, "y": 1.5}]},
+          {"type": "column", "name": "00000001 - Generation", "isNet": false, "channel": 2,
+           "data": [{"x": 1789822800000, "y": -10.3}, {"x": 1789826400000, "y": 0}]},
+          {"type": "column", "name": "00000001 - Net", "isNet": true, "channel": 3,
+           "data": [{"x": 1789822800000, "y": -10.17}, {"x": 1789826400000, "y": 1.5}]}
+        ],
+        "meters": [
+          {"channel": 1, "flowDirection": "FORWARD", "unitOfMeasure": "KWH", "isNetMeter": true},
+          {"channel": 2, "flowDirection": "REVERSE", "unitOfMeasure": "KWH", "isNetMeter": true},
+          {"channel": 3, "flowDirection": "NET", "unitOfMeasure": "KWH", "isNetMeter": true}
+        ]
+      }
+    ]
+  }
+}

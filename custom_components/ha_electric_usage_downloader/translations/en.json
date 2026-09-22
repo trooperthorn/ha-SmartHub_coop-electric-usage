@@ -1,18 +1,46 @@
 {
-    "config": {
-        "step": {
-            "user": {
-                "data": {
-                    "username": "Username",
-                    "password": "Password",
-                    "login_url": "Login URL",
-                    "usage_url": "Usage URL"
-                }
-            }
-        },
-        "error": {
-            "missing_credentials": "Username and password are required.",
-            "unknown_error": "Unexpected error"
+  "config": {
+    "step": {
+      "user": {
+        "title": "SmartHub co-op portal",
+        "description": "Enter your co-op's SmartHub host (for example bluebonnet.smarthub.coop) and the login you use on its website. Logins that require a second factor are not supported.",
+        "data": {
+          "host": "Portal host",
+          "username": "Email or username",
+          "password": "Password"
         }
+      },
+      "location": {
+        "title": "Choose a service location",
+        "data": {
+          "location": "Service location"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-enter your SmartHub password",
+        "description": "The portal rejected the stored password for {username}.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "The portal rejected the username or password.",
+      "cannot_connect": "Could not reach the portal. Check the host name.",
+      "no_locations": "This login has no service locations.",
+      "unknown": "Unexpected error. See the Home Assistant log."
+    },
+    "abort": {
+      "already_configured": "This service location is already configured.",
+      "reauth_successful": "Password updated."
     }
+  },
+  "entity": {
+    "sensor": {
+      "consumption_last_24h": { "name": "Consumption, last 24 hours of data" },
+      "generation_last_24h": { "name": "Generation, last 24 hours of data" },
+      "net_last_24h": { "name": "Net, last 24 hours of data" },
+      "last_reading": { "name": "Latest reading" }
+    }
+  }
 }
