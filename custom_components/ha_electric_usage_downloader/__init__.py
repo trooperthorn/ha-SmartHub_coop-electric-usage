@@ -15,8 +15,9 @@ from .const import (
     CONF_ACCOUNT,
     CONF_HOST,
     CONF_SERVICE_LOCATION,
-    DEFAULT_HOST,
+    DEFAULT_PROVIDER,
     PLATFORMS,
+    SMARTHUB_DOMAIN,
 )
 from .coordinator import SmartHubConfigEntry, SmartHubCoordinator
 
@@ -89,7 +90,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: SmartHubConfigEntry) ->
 async def async_migrate_entry(hass: HomeAssistant, entry: SmartHubConfigEntry) -> bool:
     """Migrate version 1 entries (page URLs) to version 2 (portal host)."""
     if entry.version == 1:
-        host = urlparse(entry.data.get("login_url", "")).hostname or DEFAULT_HOST
+        host = (
+            urlparse(entry.data.get("login_url", "")).hostname
+            or f"{DEFAULT_PROVIDER}.{SMARTHUB_DOMAIN}"
+        )
         data = {
             CONF_HOST: host,
             CONF_USERNAME: entry.data[CONF_USERNAME],

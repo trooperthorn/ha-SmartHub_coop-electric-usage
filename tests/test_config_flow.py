@@ -20,7 +20,7 @@ from custom_components.ha_electric_usage_downloader.const import DOMAIN
 GET_LOCS = "custom_components.ha_electric_usage_downloader.config_flow.SmartHubClient.async_get_service_locations"
 SETUP = "custom_components.ha_electric_usage_downloader.async_setup_entry"
 USER = {
-    "host": "https://Example.smarthub.coop/ui/",
+    "provider": "https://Example.smarthub.coop/ui/",
     "username": "u@example.com",
     "password": "pw",
 }
@@ -43,6 +43,14 @@ async def test_single_location_creates_entry(hass: HomeAssistant):
     assert result["data"]["host"] == "example.smarthub.coop"
     assert result["data"]["account"] == "1000001"
     assert result["result"].unique_id == "example.smarthub.coop_1000001_900001"
+
+
+async def test_bare_provider_name_creates_entry(hass: HomeAssistant):
+    result = await _start(hass)
+    bare = {**USER, "provider": "example"}
+    with patch(GET_LOCS, return_value=ONE), patch(SETUP, return_value=True):
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], bare)
+    assert result["data"]["host"] == "example.smarthub.coop"
 
 
 async def test_multiple_locations_asks(hass: HomeAssistant):
