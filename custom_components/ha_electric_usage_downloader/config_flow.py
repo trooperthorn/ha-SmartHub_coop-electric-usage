@@ -17,17 +17,32 @@ from homeassistant.helpers.selector import (
 )
 
 from .api import ServiceLocation, SmartHubAuthError, SmartHubClient, SmartHubError
-from .const import CONF_ACCOUNT, CONF_HOST, CONF_SERVICE_LOCATION, DEFAULT_HOST, DOMAIN
+from .const import (
+    CONF_ACCOUNT,
+    CONF_HOST,
+    CONF_PROVIDER,
+    CONF_SERVICE_LOCATION,
+    DEFAULT_PROVIDER,
+    DOMAIN,
+    SMARTHUB_DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _normalize_host(value: str) -> str:
-    """Accept a bare host or a pasted portal URL and return the host."""
+def _normalize_provider(value: str) -> str:
+    """Turn a provider name or a pasted portal URL into a SmartHub host.
+
+    Accepts a bare provider like ``bluebonnet``, a full host like
+    ``bluebonnet.smarthub.coop``, or a pasted portal URL, and always returns
+    ``<provider>.smarthub.coop``.
+    """
     value = value.strip().lower()
     for prefix in ("https://", "http://"):
         value = value.removeprefix(prefix)
-    return value.split("/", 1)[0]
+    value = value.split("/", 1)[0]
+    value = value.removesuffix(f".{SMARTHUB_DOMAIN}").strip(".")
+    return f"{value}.{SMARTHUB_DOMAIN}"
 
 
 class SmartHubConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -65,7 +80,11 @@ class SmartHubConfigFlow(ConfigFlow, domain=DOMAIN):
         """Collect the portal host and credentials, and verify them."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            data = {**user_input, CONF_HOST: _normalize_host(user_input[CONF_HOST])}
+            data = {
+                CONF_HOST: _normalize_provider(user_input[CONF_PROVIDER]),
+                CONF_USERNAME: user_input[CONF_USERNAME],
+                CONF_PASSWORD: user_input[CONF_PASSWORD],
+            }
             locations, error = await self._async_try_login(data)
             if error:
                 errors["base"] = error
@@ -83,12 +102,12 @@ class SmartHubConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=self.add_suggested_values_to_schema(
                 vol.Schema(
                     {
-                        vol.Required(CONF_HOST): str,
+                        vol.Required(CONF_PROVIDER): str,
                         vol.Required(CONF_USERNAME): str,
                         vol.Required(CONF_PASSWORD): str,
                     }
                 ),
-                user_input or {CONF_HOST: DEFAULT_HOST},
+                user_input or {CONF_PROVIDER: DEFAULT_PROVIDER},
             ),
             errors=errors,
         )

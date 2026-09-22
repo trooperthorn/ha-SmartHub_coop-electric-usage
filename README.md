@@ -61,7 +61,7 @@ If you prefer to install the integration manually:
 ## Configuration
 
 1. Go to **Settings > Devices & Services > Add Integration** and search for **SmartHub Co-op Electric Usage**.
-2. Enter your co-op's portal host (a pasted URL such as `https://bluebonnet.smarthub.coop/ui/` is accepted), your username, and your password. The login is verified before the entry is created.
+2. Enter your co-op's SmartHub provider name (the part before `.smarthub.coop`, for example `bluebonnet`; a full host or a pasted URL such as `https://bluebonnet.smarthub.coop/ui/` also works), your username, and your password. The login is verified before the entry is created.
 3. If the login has more than one service location, choose one. Add the integration again for each additional location.
 
 ### Energy dashboard

@@ -7,8 +7,12 @@ from homeassistant.const import Platform
 DOMAIN = "ha_electric_usage_downloader"
 PLATFORMS = [Platform.SENSOR]
 
-DEFAULT_HOST = "bluebonnet.smarthub.coop"
+# SmartHub is a white-label portal; every co-op runs the same JSON services
+# under its own subdomain of this domain.
+SMARTHUB_DOMAIN = "smarthub.coop"
+DEFAULT_PROVIDER = "bluebonnet"
 
+CONF_PROVIDER = "provider"
 CONF_HOST = "host"
 CONF_ACCOUNT = "account"
 CONF_SERVICE_LOCATION = "service_location"
