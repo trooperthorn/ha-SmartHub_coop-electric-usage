@@ -1,16 +1,16 @@
 {
   "domain": "ha_electric_usage_downloader",
-  "name": "Electric Usage Downloader",
+  "name": "SmartHub Co-op Electric Usage",
   "codeowners": [
     "@trooperthorn"
   ],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": [
+    "recorder"
+  ],
   "documentation": "https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage/issues",
-  "requirements": [
-    "beautifulsoup4==4.12.3"
-  ],
+  "requirements": [],
   "version": "2026.09.04.1"
 }

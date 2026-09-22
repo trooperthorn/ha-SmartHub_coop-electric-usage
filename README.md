@@ -1,15 +1,36 @@
-# HA Electric Usage Downloader
+# SmartHub Co-op Electric Usage
 
-The **HA Electric Usage Downloader** integration allows you to download and display your electric usage data from the BlueBonnet SmartHub portal directly in Home Assistant. This integration polls the SmartHub API every 15 minutes to provide real-time data about your electricity consumption.
+A Home Assistant integration that imports hourly electric usage from a NISC SmartHub co-op portal (for example `bluebonnet.smarthub.coop`) into Home Assistant long-term statistics, so it appears in the Energy dashboard stamped with the hour the energy was actually used.
 
-## Features
-- **Electric Usage Data**: Automatically fetches your electric usage from the BlueBonnet SmartHub portal every 15 minutes.
-- **Configurable URLs**: Allows you to configure the login and usage URLs for flexibility with different SmartHub instances.
-- **Easy Integration**: Once set up, your electric usage data is displayed as a sensor in Home Assistant.
+## How it works
+
+SmartHub is a single-page web application backed by JSON services. This integration makes the same calls the portal's Usage Explorer makes:
+
+1. `GET /ui/` to receive the portal's `XSRF-TOKEN` cookie.
+2. `POST /services/oauth/auth/v2` with `userId` and `password` (form encoded) and the `X-XSRF-TOKEN` header. The response carries a bearer token and its expiry.
+3. `GET /services/secured/accounts` to list account and service location numbers.
+4. `POST /services/secured/utility-usage/poll` with the account, service location, time frame (`HOURLY`) and a millisecond epoch range. The server first answers `PENDING`; the client re-posts until it answers `COMPLETE`.
+
+The token is kept in memory only and reused until shortly before it expires. A `401` triggers exactly one fresh login; a second rejection starts Home Assistant's reauthentication flow.
+
+This exchange was observed against bluebonnet.smarthub.coop (portal version 26.16.0) in September 2026. It is not a published API, and a co-op or NISC can change it without notice.
+
+### Net meters (solar)
+
+A net meter reports three channels, identified by the meter's flow direction rather than by display name:
+
+| Flow direction | Statistic | Notes |
+|---|---|---|
+| `FORWARD` | `...consumption` | Energy drawn from the grid |
+| `REVERSE` | `...generation` | Energy sent to the grid, stored as a positive number (the portal charts it as negative) |
+| `NET` | `...net` | Consumption minus generation; its running sum can go down |
+
+A meter without solar reports only consumption.
 
 ## Requirements
-- BlueBonnet SmartHub account credentials (username and password).
-- Home Assistant (version 2026.9.0 or higher).
+
+- A SmartHub login without a second factor. Logins that require two-factor authentication are not supported.
+- Home Assistant 2026.9.0 or newer, with the recorder enabled (it is by default).
 
 ---
 
@@ -37,60 +58,47 @@ If you prefer to install the integration manually:
 
 ---
 
-## Configuration Instructions
+## Configuration
 
-After installation, you can configure the integration through the Home Assistant UI.
+1. Go to **Settings > Devices & Services > Add Integration** and search for **SmartHub Co-op Electric Usage**.
+2. Enter your co-op's portal host (a pasted URL such as `https://bluebonnet.smarthub.coop/ui/` is accepted), your username, and your password. The login is verified before the entry is created.
+3. If the login has more than one service location, choose one. Add the integration again for each additional location.
 
-1. Go to **Settings** > **Devices & Services** > **Add Integration**.
-2. Search for `HA Electric Usage Downloader` and select it.
-3. Enter your **username** and **password** for the BlueBonnet SmartHub portal.
-4. Input the **login URL** and **usage URL** for your SmartHub provider.
-- Default bluebonnet URLs: (Change config_flow.py URL for COOP that leads to SmartHub)
-  - Login URL: `https://bluebonnet.smarthub.coop/Login.html`
-  - Usage URL: `https://bluebonnet.smarthub.coop/Usage/Usage.htm`
-5. Complete the configuration, and a new sensor entity will be created with your electric usage data.
+### Energy dashboard
 
----
+Under **Settings > Dashboards > Energy**, add the statistic named **SmartHub \<account\> consumption** as grid consumption and, for a net meter, **SmartHub \<account\> generation** as return to grid. Use the statistics, not the sensors.
 
-## Usage
+## What gets created
 
-Once the integration is configured, you will have a sensor in Home Assistant that displays your current electric usage in kWh. This data will be updated every 15 minutes.
+| Item | Purpose |
+|---|---|
+| External statistics per channel | Hourly kWh with a running sum. This is the data the Energy dashboard uses. |
+| Sensors: consumption, generation, net (last 24 hours of data) | Informational. They have no state class on purpose, so they never create a second energy statistic. |
+| Sensor: latest reading (diagnostic) | When the portal last published a reading. Readings typically lag by hours to a day. |
 
-You can view this sensor in your Home Assistant dashboard or use it in automations, scripts, or notifications to track your energy consumption.
+## Polling and history
 
----
+- The portal is polled every 2 hours. Readings are published late, so polling faster would add load without producing newer data.
+- Every refresh re-imports the last 3 days, so late or revised readings replace earlier values. Sums are re-anchored on the last stored hour before that window, which keeps the series continuous.
+- The first run imports the last 30 days. If Home Assistant was offline longer than 3 days, the window reaches back to the last imported hour.
+
+## Upgrading from 2026.09.04.1 and earlier
+
+Earlier versions scraped `/Login.html` and `/Usage/Usage.htm`. Existing entries are migrated automatically: the host is taken from the old login URL, and if the login has exactly one service location it is adopted. If it has several, the entry asks you to remove and re-add the integration so the correct meter is chosen. The old `Electric Usage` sensor is replaced.
+
+## Security notes
+
+- Credentials are stored in the Home Assistant config entry, as with other cloud integrations. The bearer token is never written to disk.
+- Each entry uses its own HTTP session and cookie jar, so portal cookies do not reach other integrations.
+- Diagnostics redact the username, password, account number and service location number.
+- The integration sends a User-Agent that identifies it, rather than imitating a browser.
 
 ## Troubleshooting
 
-If you encounter issues:
-- **Verify URLs**: Ensure that you have entered the correct login and usage URLs for your provider.
-- **Check Logs**: Look at the Home Assistant logs (under **Settings** > **System** > **Logs**) for any error messages related to the integration.
-- **Authentication Errors**: If login fails, ensure your credentials are correct for the BlueBonnet SmartHub portal.
-
----
-
-## Dependencies
-
-This integration requires the following Python libraries:
-- `beautifulsoup4`
-- `aiohttp`
-
-These are automatically installed when you install the integration.
-
----
-
-## FAQ
-
-**1. What if my SmartHub provider uses a different URL?**
-
-You can enter the correct URLs for your provider during setup. The integration is flexible and works with any SmartHub instance that follows the same login and usage structure.
-
-**2. How often does the integration fetch data?**
-
-The integration fetches data every 15 minutes by default, but you can adjust this interval in the integration settings if needed.
-
----
+- **Invalid authentication**: sign in on the portal website with the same credentials. If the website asks for a code, the login uses two-factor authentication and is not supported.
+- **Cannot connect**: check the host name. Enable debug logging for `custom_components.ha_electric_usage_downloader` to see each request path and status (tokens and passwords are never logged).
+- **No new data**: compare the **Latest reading** sensor with the portal. If the portal has not published newer readings, the integration cannot either.
 
 ## Support
 
-For any issues or feature requests, please create an issue on the [GitHub repository](https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage).
+Report issues on the [GitHub repository](https://github.com/trooperthorn/ha-SmartHub_coop-electric-usage/issues).
