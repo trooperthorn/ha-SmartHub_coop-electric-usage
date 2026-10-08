@@ -20,15 +20,15 @@ jobs:
           python-version: "3.14"
           cache: pip
           cache-dependency-path: requirements_test.txt
-      # The released HA pytest fixture package currently declares the 2026.9
-      # beta. Install its fixtures first, then requirements_test.txt pins
+      # The released HA pytest fixture package may declare a beta core.
+      # Install its fixtures first, then requirements_test.txt pins
       # homeassistant to stable and the next step proves the resolver honored it.
       - name: Install test dependencies
         run: |
-          pip install pytest-homeassistant-custom-component==0.13.362
+          pip install pytest-homeassistant-custom-component==0.13.371
           pip install -r requirements_test.txt
       - name: Verify runtime versions
-        run: python -c "from importlib.metadata import version; import sys; assert version('homeassistant') == '2026.9.0'; assert sys.version_info[:2] == (3, 14)"
+        run: python -c "from importlib.metadata import version; import sys; assert version('homeassistant') == '2026.10.0'; assert sys.version_info[:2] == (3, 14)"
       - name: Run the suite
         run: pytest tests/ -v
       - name: Lint
